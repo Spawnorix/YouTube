@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- SETTINGS ICON -->
+    <div id="settingsIcon"
+         onclick="
+            const icon = this.querySelector('svg');
+            icon.classList.remove('spin');
+            void icon.offsetWidth;
+            icon.classList.add('spin');
+         ">
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.66 7.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.78 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.05.24.25.42.5.42h3.84c.25 0 .46-.18.5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58Z"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  opacity="0.9"/>
+        </svg>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settingsPanel">
+
+        <h2>SETTINGS</h2>
+
+        <label><input type="checkbox" id="soundSetting"> Notification sound</label>
+        <label><input type="checkbox" id="ignoreSameUser"> Ignore links by same user</label>
+        <label><input type="checkbox" id="autoStop"> Auto stop after hit</label>
+        <label><input type="checkbox" id="autoCopy"> Auto copy link</label>
+        <label><input type="checkbox" id="bypassCooldown"> Bypass cooldown</label>
+        <label><input type="checkbox" id="streamerOnly"> Allow links only from streamer</label>
+
+        <div class="settingBlock">
+            <div class="settingTitle">Sound type</div>
+
+            <select id="soundSelect">
+                <option value="notifications/Notification1.mp3">Notification 1</option>
+                <option value="notifications/Notification2.mp3">Notification 2</option>
+                <option value="notifications/Notification3.mp3">Notification 3</option>
+            </select>
+        </div>
+
+        <button id="resetLinksBtn" class="settingsBtn danger">Reset link logs</button>
+        <button id="resetStatsBtn" class="settingsBtn danger">Reset stats</button>
+
+        <h2 class="statsTitle">STATS</h2>
+
+        <div class="stat">
+            <span class="stat-name">Opened</span>
+            <span class="stat-value" id="statOpened">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-name">Detected</span>
+            <span class="stat-value" id="statDetected">0</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-name">Last hit</span>
+            <span class="stat-value" id="statLastHit">-</span>
+        </div>
+
+        <div class="stat">
+            <span class="stat-name">Fastest</span>
+            <span class="stat-value" id="statFastest">-</span>
+        </div>
+
+        <!-- CONTACT BUTTONS -->
+        <div class="contactBlock">
+            <a class="contactBtn" href="https://discord.gg/MQvK88MRKU" target="_blank">
+                Contact me here
+            </a>
+
+            <a class="contactBtn secondary" href="https://discord.gg/KD3WAFAbu4" target="_blank">
+                Rivals Charms Hub
+            </a>
+        </div>
+
+    </div>
+
+    <!-- MAIN UI -->
+    <h1>Live Chat PS Link Sniper</h1>
+
+    <div id="status">OFF</div>
+
+    <button id="toggle" class="off">Start</button>
+
+    <div id="cooldownText" class="cooldownHidden"></div>
+
+    <h2>Past links:</h2>
+    <div class="subText">(Only last 10 links)</div>
+
+    <div id="linkList"></div>
+
+    <div class="footer">
+        Made by <a href="https://www.youtube.com/@spawnorix" target="_blank">@spawnorix</a>
+    </div>
+
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

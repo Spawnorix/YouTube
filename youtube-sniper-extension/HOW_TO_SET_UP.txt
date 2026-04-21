@@ -1,0 +1,19 @@
+THIS IS A GUIDE ON HOW TO SET UP THIS PRIVATE SERVER LINK SNIPER:
+
+1. Open Chrome and right click the 3 dots
+2. Extensions > Manage Extensions
+3. Turn on Developer Mode at the top right
+4. Click Load unpacked
+5. Select the "youtube-sniper-extension" folder and click Open
+6. READY TO USE
+
+HOW IT WORKS:
+
+When your on a YouTube Roblox live stream, if the streamer sends a private server link for Roblox in the live chat, as long as the extension is switched "On" it will detect the link as soon as its sent
+and instantly open it in a new tab. You also have a "Settings" option with this extension. Which you can decide how the extension performs. There are also Stats, you can check
+them in Settings. There is also a "Past links" section where the latest 10 links are logged and stored so you can go back and look at who sent the link, on what stream the link
+was sent, and the link itself. A copy button is next to the link incase you need it copied to clipboard, but the extension automatically does it if you have it enabled in settings.
+
+
+NEED HELP?
+CONTACT ME HERE: https://discord.gg/MQvK88MRKU
