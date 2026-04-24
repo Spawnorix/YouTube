@@ -28,7 +28,7 @@ let lastHitTime = null;
 
 const processedLinks = new Map();
 const processedUsers = new Map();
-const DUPLICATE_TIMEOUT = 10; // seconds
+const DUPLICATE_TIMEOUT = 1e9;
 
 const firedLinks = new Map();
 const LINK_LOCK_MS = 1000;
