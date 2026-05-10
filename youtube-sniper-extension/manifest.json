@@ -6,12 +6,18 @@
   "permissions": [
     "tabs",
     "storage",
-    "scripting"
+    "scripting",
+    "webNavigation"
   ],
 
   "host_permissions": [
-    "https://www.youtube.com/*"
+    "https://www.youtube.com/*",
+    "https://www.roblox.com/*"
   ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
 
   "action": {
     "default_popup": "popup.html",
