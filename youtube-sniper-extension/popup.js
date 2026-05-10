@@ -12,6 +12,7 @@ const ignoreSameUser = document.getElementById("ignoreSameUser");
 const autoStop = document.getElementById("autoStop");
 const autoCopy = document.getElementById("autoCopy");
 const resetLinksBtn = document.getElementById("resetLinksBtn");
+const resetRecentLinksBtn = document.getElementById("resetRecentLinksBtn");
 const resetStatsBtn = document.getElementById("resetStatsBtn");
 const soundSelect = document.getElementById("soundSelect");
 const bypassCooldown = document.getElementById("bypassCooldown");
@@ -23,14 +24,28 @@ const statDetected = document.getElementById("statDetected");
 const statLastHit = document.getElementById("statLastHit");
 const statFastest = document.getElementById("statFastest");
 
+/* RECENT_LINKS UI */
+const recentIcon = document.getElementById("recentIcon");
+const recentPanel = document.getElementById("recentPanel");
+const recentList = document.getElementById("recentList");
+
 let running = false;
 let buttonCooldown = false;
 let cooldownTimer = null;
+let lastTabUrl = null;
 
 if (resetLinksBtn) {
     resetLinksBtn.addEventListener("click", () => {
         chrome.storage.local.set({ links: [] }, () => {
             loadLinks();
+        });
+    });
+}
+
+if (resetRecentLinksBtn) {
+    resetRecentLinksBtn.addEventListener("click", () => {
+        chrome.storage.local.set({ recentLinks: [] }, () => {
+            loadRecentLinks();
         });
     });
 }
@@ -48,6 +63,16 @@ if (resetStatsBtn) {
             loadStats();
         });
     });
+}
+
+function closeRecentPanel() {
+    const panel = document.getElementById("recentPanel");
+    const icon = document.getElementById("recentIcon");
+
+    if (!panel || !icon) return;
+
+    panel.classList.remove("open");
+    icon.classList.remove("open");
 }
 
 async function resolveFinalUrl(url) {
@@ -77,7 +102,6 @@ async function resolveFinalUrl(url) {
 
             chrome.tabs.onUpdated.addListener(checkComplete);
 
-            // fallback safety
             setTimeout(() => {
                 chrome.tabs.onUpdated.removeListener(checkComplete);
                 chrome.tabs.remove(tabId);
@@ -94,6 +118,9 @@ function isYouTube(url = "") {
 /* SETTINGS */
 settingsIcon.addEventListener("click", (e) => {
     e.stopPropagation();
+
+    closeRecentPanel();
+
     settingsPanel.classList.toggle("open");
 });
 
@@ -486,12 +513,6 @@ btn.addEventListener("click", async () => {
     });
 });
 
-/* INIT */
-loadState();
-loadLinks();
-loadSettings();
-loadStats();
-
 chrome.storage.local.get(["cooldownEnd"], (data) => {
     const endTime = data.cooldownEnd || 0;
 
@@ -519,7 +540,120 @@ chrome.tabs.onActivated.addListener(async () => {
     }
 });
 
+/* TOGGLE PANEL */
+recentIcon.addEventListener("click", () => {
+
+    settingsPanel.classList.remove("open");
+
+    const open = recentPanel.classList.toggle("open");
+    recentIcon.classList.toggle("open", open);
+
+    if (open) loadRecentLinks();
+});
+
+/* RECENT LINKS */
+function loadRecentLinks() {
+
+    chrome.storage.local.get(["recentLinks"], (data) => {
+
+        const links = (data.recentLinks || []).slice(0, 20);
+        recentList.innerHTML = "";
+
+        for (const item of links) {
+
+            const div = document.createElement("div");
+            div.className = "recentItem";
+
+            div.innerHTML = `
+                <div><b>${item.user || "user"}</b></div>
+
+                <div>
+                    <div class="linkHeader">
+                        <span class="label">Link:</span>
+
+                        <span class="copyBtn" title="Copy link">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <a href="${item.url}" target="_blank" class="recentLink">
+                        ${item.url}
+                    </a>
+                </div>
+            `;
+
+            const copyBtn = div.querySelector(".copyBtn");
+
+            let copyCooldown = false;
+
+            copyBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (copyCooldown) return;
+                copyCooldown = true;
+
+                navigator.clipboard.writeText(item.url);
+
+                copyBtn.classList.add("zoom");
+
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="lime" stroke-width="2">
+                        <path d="M20 6L9 17l-5-5"></path>
+                    </svg>
+                `;
+
+                setTimeout(() => {
+
+                    copyBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    `;
+
+                    copyBtn.classList.remove("zoom");
+
+                }, 600);
+
+                setTimeout(() => {
+                    copyCooldown = false;
+                }, 1000);
+            });
+
+            recentList.appendChild(div);
+        }
+    });
+}
+
+document.addEventListener("click", (e) => {
+
+    const panel = document.getElementById("recentPanel");
+    const icon = document.getElementById("recentIcon");
+
+    if (!panel || !icon) return;
+
+    const isOpen = panel.classList.contains("open");
+    if (!isOpen) return;
+
+    const clickedInsidePanel = panel.contains(e.target);
+    const clickedButton = icon.contains(e.target);
+
+    if (!clickedInsidePanel && !clickedButton) {
+        panel.classList.remove("open");
+        icon.classList.remove("open");
+    }
+});
+
+/* INIT */
+loadState();
+loadLinks();
+loadSettings();
+loadStats();
+
 setInterval(() => {
     loadStats();
-    loadLinks();
 }, 1000);
