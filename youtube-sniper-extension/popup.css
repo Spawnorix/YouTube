@@ -904,3 +904,111 @@ h2 {
     align-items: center;
     gap: 6px;
 }
+
+#infoWrap {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+
+    z-index: 1;
+}
+
+#infoIcon {
+    width: 18px;
+    height: 18px;
+
+    border-radius: 999px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+
+    color: #bdbdbd;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: all 0.15s ease;
+}
+
+#infoIcon:hover {
+    color: white;
+    border-color: rgba(255,255,255,0.22);
+
+    background: rgba(255,255,255,0.10);
+
+    box-shadow: 0 0 10px rgba(255,255,255,0.12);
+}
+
+#infoPopup {
+    position: absolute;
+
+    bottom: 28px;
+    left: 0;
+
+    width: 170px;
+
+    background: #101010;
+
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+
+    padding: 10px;
+
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transform: translateY(4px);
+
+    transition: opacity 0.15s ease, transform 0.15s ease;
+
+    z-index: 1;
+}
+
+#infoWrap:hover #infoPopup {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.infoTitle {
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #fff;
+
+    margin-bottom: 4px;
+}
+
+.infoDivider {
+    height: 1px;
+    width: 100%;
+
+    background: rgba(255,255,255,0.10);
+
+    margin: 8px 0;
+}
+
+.infoDesc {
+    font-size: 11px;
+    line-height: 1.4;
+
+    color: #a8a8a8;
+}
+
+#settingsPanel,
+#recentPanel {
+    z-index: 9999;
+}
+
+#settingsIcon,
+#recentIcon {
+    z-index: 10000;
+}
