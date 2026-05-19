@@ -145,7 +145,7 @@ function watchChatReconnect() {
 /* OPEN LINK */
 const ZERO_WIDTH = /[\u200B-\u200D\uFEFF]/g;
 
-function openLink(url, detectTime) {
+function openLink(url, reactionTime) {
 
     try {
 
@@ -164,10 +164,10 @@ function openLink(url, detectTime) {
             location.href = cleanUrl;
         }
 
-        if (detectTime) {
+        if (reactionTime) {
             console.log(
                 "[SNIPER] open delay:",
-                Math.round(performance.now() - detectTime),
+                reactionTime,
                 "ms"
             );
         }
@@ -237,7 +237,9 @@ async function scanNode(node) {
 
         const text = (node.innerText || "").replace(/[\u200B-\u200D\uFEFF]/g, "");
 
-        const regex = text.match(/https:\/\/www\.roblox\.com\/share\?code=[a-zA-Z0-9]+&type=Server/g);
+        const regex = text.match(
+            /https:\/\/www\.roblox\.com\/share\?code=[a-zA-Z0-9]+&type=Server/g
+        );
 
         if (regex) {
             for (const r of regex) {
@@ -253,9 +255,9 @@ async function scanNode(node) {
         cleanProcessed();
 
         const detectTime = performance.now();
+        const detectedAt = Date.now();
 
         for (const raw of matches) {
-
             const cleanLink = raw.trim();
 
             if (!window.__firedLinks) window.__firedLinks = new Map();
@@ -269,7 +271,6 @@ async function scanNode(node) {
 
             if (!finalUrl.includes("&type=Server")) continue;
             if (finalUrl.includes("...")) continue;
-
             if (!finalUrl.includes("roblox.com/share")) continue;
 
             if (!settings.bypassCooldown && cooldown) continue;
@@ -301,28 +302,33 @@ async function scanNode(node) {
 
             const normalizedUser = cleanUser.toLowerCase();
 
-            if (settings.ignoreSameUser && processedUsers.has(normalizedUser)) continue;
+            if (settings.ignoreSameUser && processedUsers.has(normalizedUser)) {
+                continue;
+            }
 
             if (settings.ignoreSameUser) {
                 processedUsers.set(normalizedUser, true);
             }
 
-            const reactionTime = Math.max(1, Math.floor(performance.now() - detectTime));
+            const reactionTime = Math.max(
+                1,
+                Math.floor(performance.now() - detectTime)
+            );
 
-            if (!window.__recentQueue) window.__recentQueue = Promise.resolve();
+            if (!window.__recentQueue) {
+                window.__recentQueue = Promise.resolve();
+            }
 
             window.__recentQueue = window.__recentQueue.then(() => {
                 return new Promise((resolve) => {
-
                     chrome.storage.local.get(["recentLinks"], (data) => {
-
                         const recentLinks = data.recentLinks || [];
 
                         recentLinks.unshift({
                             streamer,
                             user: "@" + cleanUser,
                             url: finalUrl,
-                            time: Date.now()
+                            time: detectedAt
                         });
 
                         if (recentLinks.length > 20) {
@@ -331,60 +337,74 @@ async function scanNode(node) {
 
                         chrome.storage.local.set({ recentLinks }, resolve);
                     });
-
                 });
             });
 
             if (enabled) {
 
-                openLink(finalUrl, detectTime);
+                setTimeout(() => {
 
-                if (settings.autoCopy) {
-                    try {
-                        navigator.clipboard.writeText(finalUrl);
-                    } catch {}
-                }
+                    openLink(finalUrl, reactionTime);
 
-                if (settings.sound) {
-                    try {
-                        openSound.currentTime = 0;
-                        openSound.play();
-                    } catch {}
-                }
-
-                if (!settings.bypassCooldown) startCooldown();
-
-                chrome.storage.local.get(["stats", "links"], (data) => {
-
-                    const stats = data.stats || {
-                        opened: 0,
-                        detected: 0,
-                        lastHit: 0,
-                        fastestHit: 0
-                    };
-
-                    const links = data.links || [];
-
-                    stats.detected++;
-                    stats.opened++;
-                    stats.lastHit = Date.now();
-
-                    if (!stats.fastestHit || reactionTime < stats.fastestHit) {
-                        stats.fastestHit = reactionTime;
+                    if (settings.autoCopy) {
+                        try {
+                            navigator.clipboard.writeText(finalUrl);
+                        } catch {}
                     }
 
-                    links.unshift({
-                        streamer,
-                        user: "@" + cleanUser,
-                        url: finalUrl
+                    if (settings.sound) {
+                        try {
+                            openSound.currentTime = 0;
+                            openSound.play();
+                        } catch {}
+                    }
+
+                    if (!settings.bypassCooldown) {
+                        startCooldown();
+                    }
+
+                    chrome.storage.local.get(["stats", "links"], (data) => {
+
+                        const stats = data.stats || {
+                            opened: 0,
+                            detected: 0,
+                            lastHit: 0,
+                            fastestHit: 0
+                        };
+
+                        const links = data.links || [];
+
+                        stats.detected++;
+                        stats.opened++;
+
+                        stats.lastHit = detectedAt;
+
+                        if (
+                            !stats.fastestHit ||
+                            reactionTime < stats.fastestHit
+                        ) {
+                            stats.fastestHit = reactionTime;
+                        }
+
+                        links.unshift({
+                            streamer,
+                            user: "@" + cleanUser,
+                            url: finalUrl
+                        });
+
+                        if (links.length > settings.maxLinks) {
+                            links.pop();
+                        }
+
+                        chrome.storage.local.set({ stats, links });
+
                     });
 
-                    if (links.length > settings.maxLinks) links.pop();
+                    if (settings.autoStop) {
+                        stop();
+                    }
 
-                    chrome.storage.local.set({ stats, links });
-                });
-
-                if (settings.autoStop) stop();
+                }, 150);
             }
         }
 
